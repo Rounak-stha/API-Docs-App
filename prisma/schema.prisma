@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+model message {
+  id Int @default(autoincrement()) @id
+  name String? @db.VarChar(30)
+  message String @db.VarChar(250)
+  incognito Boolean
+  date DateTime @default(now())
+}
+
+model t3Tracks {
+  id Int @default(autoincrement()) @id
+  name String
+  artist String
+  spotifyId String
+  roll Int
+}
+
+model Admin {
+  id Int @default(autoincrement()) @id
+  name String @unique
+  password String
+  token String?
+}
+
+model docConfig {
+  id Int @default(autoincrement()) @id
+  code String @unique
+  data String @db.Text
+  apiUrl String
+}
