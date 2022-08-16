@@ -7,8 +7,6 @@ import axios from "axios"
 import { useCodeMirror } from "@/lib/Editor"
 import Input from "@/components/Input"
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL
-
 const placeholder = JSON.stringify({
   Auth: [
     {
@@ -119,7 +117,7 @@ export default function Config({ newSession, configData, apiUrl, guest }) {
             if (!Editor.state.doc.length) return alert('Nothing to publish')
             if (guest) {
               if (!apiUrlObj.text) return alert('No APi Endpoint Provided')
-              axios.post(APP_URL + '/api/saveGuestData', { data: JSON.stringify(JSON.parse(Editor.state.toJSON().doc)), apiUrl: apiUrlObj.text }).then(res => {
+              axios.post('/api/saveGuestData', { data: JSON.stringify(JSON.parse(Editor.state.toJSON().doc)), apiUrl: apiUrlObj.text }).then(res => {
                 if (res.status === 200 && res.data.code) {
                   setdDialogueBox({ show: true, type: 'configCode', data: { code: res.data.code }, nextRoute: '/' })
                 }
@@ -129,7 +127,7 @@ export default function Config({ newSession, configData, apiUrl, guest }) {
             }
             else {
               const data = JSON.stringify(JSON.parse(Editor.state.toJSON().doc))
-              axios.post(APP_URL + '/api/updateConfigData', { data })
+              axios.post('/api/updateConfigData', { data })
                 .then(res => {
                   if (res.status === 200) {
                     localStorage.setItem('configData', data)
@@ -160,7 +158,7 @@ export default function Config({ newSession, configData, apiUrl, guest }) {
               handleClick={() => {
                 const apiUrl = apiUrlObj.text
                 if (apiUrl === api) return alert('The API endpoint is already updated')
-                axios.post(APP_URL + '/api/updateApiUrl', { apiUrl })
+                axios.post('/api/updateApiUrl', { apiUrl })
                   .then(res => {
                     if (res.status === 200) {
                       setApi(apiUrl)

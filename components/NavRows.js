@@ -51,7 +51,7 @@ export default function NavRows() {
                             text='🔐 Sign Out' 
                             handleClick={() => {
                                 console.log('User is Logging out')
-                                axios.get(APP_URL + '/api/logout')
+                                axios.get('/api/logout')
                                     .then(res => {
                                         if (res.data.loggedOut) {
                                             localStorage.removeItem('api')

@@ -3,8 +3,6 @@ import { useRouter } from 'next/router'
 import axios from "axios"
 import Link from "next/link"
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL
-
 export default function Auth() {
     const [code, setCode] = useState('')
     const router = useRouter()
@@ -21,7 +19,7 @@ export default function Auth() {
                 <button 
                     onClick={() => { 
                         axios.post(
-                            APP_URL + '/api/auth', 
+                            '/api/auth', 
                             { code }
                         ).then(({ data }) => {
                             if (data.success && data.redirect) {
