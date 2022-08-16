@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 
-export default function() {
+export default function Eror500() {
     useEffect(() => {
         if (!document.referrer) window.location.href = '/'
     })
