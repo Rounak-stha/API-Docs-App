@@ -9,7 +9,7 @@ export default function() {
     const [code, setCode] = useState('')
     const router = useRouter()
     return (
-        <div className="h-screen  flex flex-col justify-center items-center">
+        <div className="h-full flex flex-col justify-center items-center">
             <div className="flex">
                 <input 
                     value={code}
@@ -21,7 +21,7 @@ export default function() {
                 <button 
                     onClick={() => { 
                         axios.post(
-                            process.env.NEXT_PUBLIC_APP_URL + '/api/auth', 
+                            APP_URL + '/api/auth', 
                             { code }
                         ).then(({ data }) => {
                             if (data.success && data.redirect) {

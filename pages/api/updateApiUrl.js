@@ -6,8 +6,9 @@ export default async function(req, res) {
         const code = await getCode(req)
         await prisma.docConfig.update({
             where: { code },
-            data: { data: req.body.data }
+            data: { apiUrl: req.body.apiUrl }
         })
+        res.setHeader('Content-Type', 'text/plain') // if not specified, firefox searches for html element and when not found displays error in console
         return res.end()
     } catch(err) {
         console.log(err)

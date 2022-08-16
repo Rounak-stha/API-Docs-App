@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react"
-import { DocsContext } from "@/components/DocsContext"
+import { DocsContext } from "context/DocsContext"
 import RouteDetail from "@/components/RouteDetail";
 import { checkCtxAndReturnProps } from "@/lib/session";
 
