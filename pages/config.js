@@ -64,7 +64,7 @@ const placeholder = JSON.stringify({
   ]
 }, null, 4)
 
-export default function({ newSession, configData, apiUrl, guest }) {
+export default function Config({ newSession, configData, apiUrl, guest }) {
   const { docConfig, api, setApi, setDocConfig } = useContext(DocsContext)
 
   const [dialogueBox, setdDialogueBox] = useState({})

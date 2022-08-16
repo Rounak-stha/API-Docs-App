@@ -3,7 +3,7 @@ import { DocsContext } from "context/DocsContext"
 import RouteDetail from "@/components/RouteDetail";
 import { checkCtxAndReturnProps } from "@/lib/session";
 
-export default function({ newSession, configData, apiUrl, slug}) {
+export default function Slug({ newSession, configData, apiUrl, slug}) {
     const { docConfig, api, setApi, setDocConfig } = useContext(DocsContext)
     
     useEffect(() => {

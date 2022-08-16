@@ -5,7 +5,7 @@ import Link from "next/link"
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL
 
-export default function() {
+export default function Auth() {
     const [code, setCode] = useState('')
     const router = useRouter()
     return (
