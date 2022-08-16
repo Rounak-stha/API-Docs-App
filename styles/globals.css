@@ -18,6 +18,20 @@ body {
 	font-family: 'Roboto Mono', monospace;
 }
 
+/* sliding navbar start */
+
+.show-navbar {
+	display: block;
+	background-color: #121415;
+	height: 100vh;
+	z-index: 5;
+	position: absolute;
+	width: 300px;
+	padding: 10px;
+}
+
+/* sliding navbar start */ 
+
 .loader {
 	border-top-color: #0f4bc2;
 	-webkit-animation: spinner 1.5s linear infinite;
@@ -41,4 +55,63 @@ body {
 		transform: rotate(360deg);
 	}
 }
+
+
+/* Custom editor with code highlight */
+
+[data-id='editing'], [data-id='highlighting'] {
+/* Both elements need the same text and space styling so they are directly on top of each other */
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 14px;
+	overflow: auto;
+	border: 0;
+	width: 100%;
+}
+
+[data-id='editing'], [data-id='highlighting'], [data-id='highlighting'] * {
+/* Also add text styles to highlighting tokens */
+font-size: 14px;
+font-family: 'Roboto Mono', monospace;
+}
+
+/* Move the textarea in front of the result */
+[data-id='editing'] {
+	z-index: 1;
+	color: transparent;
+  background: transparent;
+  caret-color: white; /* Or choose your favorite color */
+  resize: none;
+  white-space: pre;
+}
+  
+[data-id='highlighting'] {
+	z-index: 0;
+}
+
+/* End of Custom COde Editor*/
+
+/* css for prism highlighting */
+.token.punctuation {
+	color: #c5c8c6;
+}
+
+
+.token.property {
+	color: #96CBFE;
+}
+
+.token.boolean {
+	color: #99CC99;
+}
+
+.token.number {
+	color: #FF73FD;
+}
+
+.token.string {
+    color: #A8FF60;
+}
+/* End of css for prism highlighting */
 

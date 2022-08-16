@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { DocsContext } from '../components/DocsContext'
+import { DocsContext } from '../context/DocsContext'
 import Layout from '../components/Layout'
 import '../styles/globals.css'
 

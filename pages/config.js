@@ -1,187 +1,188 @@
 import { useContext, useEffect, useState } from "react"
-import { DocsContext } from "@/components/DocsContext"
+import { DocsContext } from "context/DocsContext"
 import { checkCtxAndReturnProps } from "@/lib/session"
 import ColoredButton from "@/components/ColoredButton"
-import Editor from "@/components/Editor"
 import BigInfo from "@/components/BigInfo"
 import axios from "axios"
+import { useCodeMirror } from "@/lib/Editor"
+import Input from "@/components/Input"
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL
 
-const placeholder = `{ 
-  "User" : [
+const placeholder = JSON.stringify({
+  Auth: [
     {
-      "method":"POST",
-      "path":"abc/xyz",
-      "details":  {
-        "Request" :{
-            "headers":  {
-              "authorization":"Bearer gkjdahsgdkjahsgdkajhd"
-            }
-          },
-        "Documentation":"This Route gets a user by verifying the authorization token sent in the header"
+      method: 'string',
+      path: 'string',
+      details: {
+        Request: {
+          headers: 'object',
+          body: 'object',
+          params: 'object (query Params)'
+        },
+        documentation: 'string'
       }
     },
     {
-      "method":"POST",
-      "path":"abc/xyz",
-      "details": {
-        "Request": {
-          "headers": {"authorization":"Bearer <Token>"},
-          "params": { "sendOtp": 1,"verifyOtp": 1},
-          "body": {"abc":"908070","email":"newmail@email.com"}
+      method: 'string',
+      path: 'string',
+      details: {
+        Request: {
+          headers: 'object',
+          body: 'object',
+          params: 'object (query Params)'
         },
-      "Documentation":"This route is called to change the user's email"}
+        documentation: 'string'
+      }
     }
   ],
-  "Booking": [
-    { 
-      "method": "GET",
-      "path": "book/getRoom",
-      "details": {
-        "Request": {},
-        "Documentation":"This route is called to change the user's email"
+  User: [
+    {
+      method: 'string',
+      path: 'string',
+      details: {
+        Request: {
+          headers: 'object',
+          body: 'object',
+          params: 'object (query Params)'
+        },
+        documentation: 'string'
+      }
+    },
+    {
+      method: 'string',
+      path: 'string',
+      details: {
+        Request: {
+          headers: 'object',
+          body: 'object',
+          params: 'object (query Params)'
+        },
+        documentation: 'string'
       }
     }
   ]
-}
-`
-
-const FORMAT = {
-  method: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  path: 'string',
-  details: {
-    request: 'object',
-    documentation: 'string' 
-  }
-}
-
-const FORMAT_KEYS = Object.keys(FORMAT)
-
+}, null, 4)
 
 export default function({ newSession, configData, apiUrl, guest }) {
-  const { docConfig, setApi, setDocConfig } = useContext(DocsContext)
+  const { docConfig, api, setApi, setDocConfig } = useContext(DocsContext)
 
-  const [value, setValue] = useState(guest ? '' : JSON.stringify(docConfig))
-  const [format, setFormat] = useState(true)
-  const [url, setUrl] = useState('')
   const [dialogueBox, setdDialogueBox] = useState({})
+  const [apiUrlChanged, setApiUrlChanged] = useState(false)
+  const [apiUrlObj, setApiUrlObj] = useState({ text: newSession ? apiUrl : '' })
+
+  const [refContainer, Editor] = useCodeMirror('', placeholder)
   
   useEffect(() => {
-    console.log('UseEffect in Config Page')
-      if (newSession) {
-        localStorage.setItem('configData', configData)
-        configData = JSON.parse(configData)
-        setValue(configData)
-        setFormat(true)
-        setApi(apiUrl)
-        setDocConfig(configData)
-        return
-      }
-      setValue(localStorage.getItem('configData'))
-      setFormat(true)
+    if (Editor) {
+      if (guest) return
+      Editor.dispatch({
+        changes: { from: 0, to: Editor.state.doc.length, insert: JSON.stringify(docConfig, null, 4) }
+      });
+    }
+  }, [Editor])
+
+  useEffect(() => {
+    if (guest) return
+
+    const apiEndPoint = newSession ? apiUrl : localStorage.getItem('api')
+
+    if (newSession) {
+      localStorage.setItem('configData', configData)
+      localStorage.setItem('api', apiUrl)
+      setApi(apiUrl)
+    }
+
+    setApiUrlObj({ text: apiEndPoint })
+    if (!api) setApi(apiEndPoint)
+    if (Object.keys(docConfig).length === 0) setDocConfig(JSON.parse(newSession ? configData : localStorage.getItem('configData')))
+
   }, [])
 
   return (
     <>
       { dialogueBox.show && <BigInfo type={dialogueBox.type} data={dialogueBox.data} nextRoute={dialogueBox.nextRoute} /> }
-      <div className="flex gap-4">
-        { !guest && <ColoredButton handleClick={() => {
-          let save = true
-          let tempConfig
-          try {
-             tempConfig = JSON.parse(value)
-          } catch(err) {
-            alert('You have an error in your JSON. Please check your config thoroughly')
-            return
-          }
-          let keys = Object.keys(tempConfig)
-          let breakAll = false
-          for (let j = 0; j < keys.length; j++) {
-            let key = keys[j]
-            if (!Array.isArray(tempConfig[key])) return alert('Please follow the correct syntax for the config. Each Topic should be an array.')
-            for (let k = 0; k < tempConfig[key].length; k++) {
-              console.log('obj is: ', tempConfig[key][k])
-              let obj = tempConfig[key][k]
-              let finalObj = {}
-              for (let i = 0; i < FORMAT_KEYS.length; i++) {
-                let formatKey = FORMAT_KEYS[i]
-                if (!obj[formatKey]) {
-                  alert('You are missing ' + '"' + formatKey + '"' + ' in ' + key + '\n' + 'The correct format is: \n' + JSON.stringify(FORMAT, null, 8))
-                  breakAll = true
-                  break
-                }
-                if (formatKey === 'method' && typeof obj.method === 'string' && !FORMAT.method.includes(obj.method.toUpperCase())) {
-                  alert('Your method type is not valid in one of your ' + key + ' routes')
-                  breakAll = true
-                  break
-                } 
-                if (formatKey === 'path' && typeof obj.path !== 'string') {
-                  alert('Path must be a string. Error in one of your ' + key + ' routes')
-                  breakAll = true
-                  break
-                }
-                if (formatKey === 'details' && typeof obj.details !== 'object' || typeof obj.details.Request !== 'object' || typeof obj.details.Documentation !== 'string') {
-                    alert('Details in ' + key + ' is not in correct format. ' + '\n' + 'The correct format is: \n' + JSON.stringify(FORMAT.details, null, 8))
-                    breakAll = true
-                    break
-
-                }
-                finalObj[formatKey] = obj[formatKey]
-              }
-              if (breakAll) break
-              obj = finalObj
-            }
-            if (breakAll) {
-              save = false
-              break
-            }
-          }
-          if (save) {
-            localStorage.setItem('configData', JSON.stringify(tempConfig)) // localstorage should store non formatted string
-            setDocConfig(tempConfig)
-          }
-        }} text='Save' /> }
+      <div className="flex flex-wrap items-center gap-4">
+        { !guest && 
+          <ColoredButton 
+            text='Save'
+            handleClick={() => {
+              // editor data is formatted string, so first convert to Javascript Object
+              const editorData = JSON.parse(Editor.state.toJSON().doc)
+              localStorage.setItem('configData', JSON.stringify(editorData)) // saved as non formatted plain string
+              setDocConfig(editorData) 
+            }}  
+          /> }
         <ColoredButton
           text='Publish' 
           handleClick={() => {
-            if (!value) return
+            if (!Editor.state.doc.length) return alert('Nothing to publish')
             if (guest) {
-              if (!url) return
-              axios.post(APP_URL + '/api/saveGuestData', { data: JSON.stringify(JSON.parse(value)), apiUrl: url }).then(res => {
+              if (!apiUrlObj.text) return alert('No APi Endpoint Provided')
+              axios.post(APP_URL + '/api/saveGuestData', { data: JSON.stringify(JSON.parse(Editor.state.toJSON().doc)), apiUrl: apiUrlObj.text }).then(res => {
                 if (res.status === 200 && res.data.code) {
                   setdDialogueBox({ show: true, type: 'configCode', data: { code: res.data.code }, nextRoute: '/' })
                 }
-              }).catch(err => {
+              }).catch(() => {
                 setdDialogueBox({ show: true, text: `An Unknown Error Occoured`, nextRoute: '' })
               }) 
             }
             else {
-              axios.post(APP_URL + '/api/updateConfigData', { data: JSON.stringify(JSON.parse(value)) })
+              const data = JSON.stringify(JSON.parse(Editor.state.toJSON().doc))
+              axios.post(APP_URL + '/api/updateConfigData', { data })
                 .then(res => {
-                  if (res.status === 200) alert('Config Updated')
+                  if (res.status === 200) {
+                    localStorage.setItem('configData', data)
+                    alert('Config Updated')
+                  }
                 })
-                .catch(error => alert('An Unknown Error Occoured'))
+                .catch(() => alert('An Unknown Error Occoured'))
             }
           }}
         />
+        { guest ? (
+          <Input context={apiUrlObj} fitContent={true} border={false} outline={false} placeholder="Your API's URL (https://apiurl.com)" />
+        ) : (
+          <>
+            <Input 
+              context={apiUrlObj} 
+              fitContent={true} 
+              border={false} 
+              outline={false} 
+              customOnChange={() => {
+                if (apiUrlChanged) return
+                else setApiUrlChanged(true)
+              }} 
+              placeholder='Your API URL' />
+            <ColoredButton 
+              disabled={!apiUrlChanged}
+              text='Update API URL'
+              handleClick={() => {
+                const apiUrl = apiUrlObj.text
+                if (apiUrl === api) return alert('The API endpoint is already updated')
+                axios.post(APP_URL + '/api/updateApiUrl', { apiUrl })
+                  .then(res => {
+                    if (res.status === 200) {
+                      setApi(apiUrl)
+                      setApiUrlChanged(false)
+                      localStorage.setItem('api', apiUrl)
+                      alert('API URL Updated')
+                    }
+                  })
+                  .catch(() => alert('An Unknown Error Occoured'))
+              }}
+            />
+          </>
+        )
+      }
       </div>
-      { guest && (
-          <input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            className="bg-callout px-4 pt-[6px] w-full md:w-[350px] pb-2 mt-4 rounded-md"
-            placeholder="Your API's URL (https://apiurl.com)"
-          />
-        )}
       <div className="mt-4">
-        <Editor value={value} setValue={setValue} format={format} setFormat={setFormat} placeholder={placeholder} />
+        <div ref={refContainer}></div>
       </div>
     </>
   )
   }
 export async function getServerSideProps(ctx) {
   const props = await checkCtxAndReturnProps(ctx)
-  console.log(props)
   return props
 }

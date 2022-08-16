@@ -5,8 +5,6 @@ const infoTexts = {
 }
 
 export default function BigInfo({ type, nextRoute, data }) {
-    console.log(type, infoTexts[type])
-    console.log(data)
     return (
         <div className="h-screen w-screen fixed top-0 left-0 bg-dark opacity-75 z-50">
             <div className="h-full w-full flex justify-center items-center">
